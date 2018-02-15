@@ -17,7 +17,6 @@
 
 - name: Update font cache
   command: fc-cache -fv
-  register: output
 
 - name: Change window manager
   replace:
@@ -37,3 +36,25 @@
     owner: root
     group: root
     mode: 0644
+
+- name: Put xinitrc skeleton
+  copy:
+    src: xinitrc.sh
+    dest: /etc/skel/.xinitrc
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Check ibus-daemon setting
+  command: grep ibus-daemon /etc/skel/.bashrc
+  register: grep_cmd
+  failed_when: grep_cmd.rc != 0 and grep_cmd.rc != 1
+
+- name: Add ibus-daemon setting
+  blockinfile:
+    path: /etc/skel/.bashrc
+    block: |
+      if [ ! -z ${DISPLAY} ]; then
+          ibus-daemon -x &
+      fi
+  when: grep_cmd.rc != 0
