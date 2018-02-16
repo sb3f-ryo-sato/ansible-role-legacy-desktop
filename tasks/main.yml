@@ -15,6 +15,15 @@
     - "@fonts"
     - "@emacs"
 
+- name: Install additional packages for CentOS 6
+  yum:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - "xorg-x11-apps"
+    - "openmotif"
+  when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "6"
+
 - name: Update font cache
   command: fc-cache -fv
 
