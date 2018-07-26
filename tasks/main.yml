@@ -1,5 +1,6 @@
 ---
 - name: Install packages
+  become: True
   yum:
     name: "{{ item }}"
     state: latest
@@ -16,6 +17,7 @@
     - "@emacs"
 
 - name: Install additional packages for CentOS 6
+  become: True
   yum:
     name: "{{ item }}"
     state: latest
@@ -25,9 +27,11 @@
   when: ansible_os_family == "RedHat" and ansible_distribution_major_version == "6"
 
 - name: Update font cache
+  become: True
   command: fc-cache -fv
 
-- name: Change window manager
+- name: Change window manager from twm to mwm
+  become: True
   replace:
     path: "{{ item }}"
     regexp: 'twm'
@@ -39,6 +43,7 @@
     - /etc/X11/xinit/xinitrc
 
 - name: Set ibus variables
+  become: True
   copy:
     src: ibus.sh
     dest: /etc/profile.d/ibus.sh
@@ -46,7 +51,8 @@
     group: root
     mode: 0644
 
-- name: Put xinitrc skeleton
+- name: Deploy xinitrc skeleton
+  become: True
   copy:
     src: xinitrc.sh
     dest: /etc/skel/.xinitrc
@@ -54,15 +60,27 @@
     group: root
     mode: 0644
 
+- name: Deploy Xresources skeleton
+  become: True
+  copy:
+    src: Xresources.conf
+    dest: /etc/skel/.Xresources
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Check ibus-daemon setting
+  become: True
   command: grep ibus-daemon /etc/skel/.bashrc
   register: grep_cmd
   failed_when: grep_cmd.rc != 0 and grep_cmd.rc != 1
 
-- name: Add ibus-daemon setting
+- name: Add Java anti-aliasing and ibus-daemon setting
+  become: True
   blockinfile:
     path: /etc/skel/.bashrc
     block: |
+      export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on'
       if [ ! -z ${DISPLAY} ]; then
           ibus-daemon -x &
       fi
