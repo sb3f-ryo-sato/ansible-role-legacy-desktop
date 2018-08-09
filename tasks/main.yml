@@ -80,6 +80,8 @@
   blockinfile:
     path: /etc/skel/.bashrc
     block: |
+      export JAVA_HOME='/etc/alternatives/jre'
+      export JVM_ARGS='-Duser.language=ja'
       export _JAVA_OPTIONS='-Dawt.useSystemAAFontSettings=on'
       if [ ! -z ${DISPLAY} ]; then
           ibus-daemon -x &
