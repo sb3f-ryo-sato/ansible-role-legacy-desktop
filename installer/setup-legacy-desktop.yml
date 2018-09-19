@@ -1,0 +1,5 @@
+---
+- name: Setup the legacy desktop
+  hosts: localhost
+  roles:
+    - setup-legacy-desktop
